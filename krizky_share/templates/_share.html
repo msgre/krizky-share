@@ -1,0 +1,116 @@
+{# =================================================================
+   _share.html — makra pluginu krizky-share
+
+   Použití v šabloně:
+     {% from "_share.html" import share_meta, share_buttons, share_schema_place %}
+
+   Konvence: URL se předává jako absolutní (použij `absolute_url()` z core).
+================================================================= #}
+
+{# — share_meta —
+   Vypíše OG + Twitter Card meta tagy pro konkrétní stránku.
+   Vlož do <head>, ideálně skrz block v base.html.
+
+   Parametry:
+     url         – absolutní URL stránky
+     title       – titulek stránky (typicky record.nazev / site.title)
+     description – popis (optional; fallback na site.description v šabloně)
+     image       – absolutní URL obrázku (optional)
+     type        – og:type (default "website", pro detail použij "article")
+#}
+{% macro share_meta(url, title, description=none, image=none, type="website") -%}
+<meta property="og:type" content="{{ type }}">
+<meta property="og:url" content="{{ url }}">
+<meta property="og:title" content="{{ title }}">
+{%- if description %}
+<meta property="og:description" content="{{ description }}">
+{%- endif %}
+{%- if image %}
+<meta property="og:image" content="{{ image }}">
+{%- endif %}
+<meta name="twitter:title" content="{{ title }}">
+{%- if description %}
+<meta name="twitter:description" content="{{ description }}">
+{%- endif %}
+{%- if image %}
+<meta name="twitter:image" content="{{ image }}">
+{%- endif %}
+<link rel="canonical" href="{{ url }}">
+{%- endmacro %}
+
+
+{# — share_schema_place —
+   Vypíše JSON-LD strukturovaná data pro místo (Schema.org).
+   Vlož do <head> nebo na konec <body>. Vygeneruje geo blok automaticky
+   z latitude/longitude.
+
+   Parametry:
+     type        – Schema.org type ("Place", "LandmarksOrHistoricalBuilding", "Sculpture", …)
+     name        – jméno místa
+     description – popis (optional)
+     latitude    – GPS (optional; s longitude se přeloží na geo objekt)
+     longitude   – GPS (optional)
+     image       – absolutní URL obrázku (optional)
+     url         – absolutní URL stránky (optional)
+#}
+{% macro share_schema_place(type, name, description=none, latitude=none, longitude=none, image=none, url=none) -%}
+{%- set data = {"@context": "https://schema.org", "@type": type, "name": name} -%}
+{%- if description %}{% set _ = data.update({"description": description}) %}{% endif -%}
+{%- if url %}{% set _ = data.update({"url": url}) %}{% endif -%}
+{%- if image %}{% set _ = data.update({"image": [image]}) %}{% endif -%}
+{%- if latitude is not none and longitude is not none -%}
+{%- set _ = data.update({"geo": {"@type": "GeoCoordinates", "latitude": latitude, "longitude": longitude}}) -%}
+{%- endif -%}
+<script type="application/ld+json">{{ data | tojson }}</script>
+{%- endmacro %}
+
+
+{# — share_buttons —
+   Vypíše sdílecí widget: desktop = řádek 4 kruhových ikon, mobil = jedno
+   tlačítko "Sdílet" + rozbalitelné menu (F/WA/P/X + Kopírovat odkaz).
+   Progressive enhancement — bez JS mobile fallback ukáže menu přes :focus-within
+   na <details> elementu.
+
+   Parametry:
+     url   – absolutní URL sdílené stránky
+     title – titulek pro sdílení
+     image – absolutní URL obrázku (optional; bez něj se skryje Pinterest)
+     label – text před tlačítky na desktopu (default "Sdílet")
+#}
+{% macro share_buttons(url, title, image=none, label="Sdílet") -%}
+{%- set links = share_links(url, title, image) -%}
+<div class="share" data-share data-share-url="{{ url }}" data-share-title="{{ title }}">
+  {# — Desktop varianta — #}
+  <div class="share-desktop">
+    <span class="share-label mono small">{{ label }}</span>
+    <div class="share-icons">
+      {%- for link in links %}
+      <a class="share-icon" href="{{ link.url }}" target="_blank" rel="noopener noreferrer"
+         aria-label="Sdílet na {{ link.label }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#{{ link.icon }}"/></svg>
+      </a>
+      {%- endfor %}
+    </div>
+  </div>
+  {# — Mobilní varianta — <details> pro fallback bez JS — #}
+  <details class="share-mobile">
+    <summary class="share-toggle" aria-label="{{ label }}">
+      <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-share-toggle"/></svg>
+      <span>{{ label }}</span>
+    </summary>
+    <div class="share-menu" role="menu">
+      {%- for link in links %}
+      <a class="share-menu-item" href="{{ link.url }}" role="menuitem"
+         target="_blank" rel="noopener noreferrer">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#{{ link.icon }}"/></svg>
+        <span>{{ link.label }}</span>
+      </a>
+      {%- endfor %}
+      <button class="share-menu-item" type="button" data-share-copy role="menuitem">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-share-copy"/></svg>
+        <span>Kopírovat odkaz</span>
+      </button>
+    </div>
+  </details>
+</div>
+{%- endmacro %}
