@@ -152,6 +152,20 @@ def test_share_buttons_custom_label(env):
     assert 'Poslat dál' in out
 
 
+def test_share_buttons_label_none_hides_desktop_label_only(env):
+    """label=none = jen ikony na desktopu; mobil má stále "Sdílet"."""
+    tmpl = env.from_string(
+        '{% from "_share.html" import share_buttons %}'
+        '{{ share_buttons("u", "t", label=none) }}'
+    )
+    out = tmpl.render()
+    # Desktop label element chybí.
+    assert 'class="share-label' not in out
+    # Mobilní "Sdílet" text a aria-label zůstávají.
+    assert '<span>Sdílet</span>' in out
+    assert 'aria-label="Sdílet"' in out
+
+
 def test_share_buttons_copy_button_has_data_attr(env):
     tmpl = env.from_string(
         '{% from "_share.html" import share_buttons %}'

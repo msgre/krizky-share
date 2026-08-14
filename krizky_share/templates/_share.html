@@ -66,23 +66,25 @@
 
 
 {# — share_buttons —
-   Vypíše sdílecí widget: desktop = řádek 4 kruhových ikon, mobil = jedno
+   Vypíše sdílecí widget: desktop = řádek kruhových ikon, mobil = jedno
    tlačítko "Sdílet" + rozbalitelné menu (F/WA/P/X + Kopírovat odkaz).
-   Progressive enhancement — bez JS mobile fallback ukáže menu přes :focus-within
-   na <details> elementu.
+   Progressive enhancement — bez JS mobile fallback funguje přes <details>.
 
    Parametry:
      url   – absolutní URL sdílené stránky
      title – titulek pro sdílení
      image – absolutní URL obrázku (optional; bez něj se skryje Pinterest)
-     label – text před tlačítky na desktopu (default "Sdílet")
+     label – textový prefix před ikonami na desktopu; ``none``/prázdné = jen ikony.
+             Mobilní tlačítko má vždy "Sdílet" (jinak by ikona nebyla srozumitelná).
 #}
 {% macro share_buttons(url, title, image=none, label="Sdílet") -%}
 {%- set links = share_links(url, title, image) -%}
 <div class="share" data-share data-share-url="{{ url }}" data-share-title="{{ title }}">
   {# — Desktop varianta — #}
   <div class="share-desktop">
+    {%- if label %}
     <span class="share-label mono small">{{ label }}</span>
+    {%- endif %}
     <div class="share-icons">
       {%- for link in links %}
       <a class="share-icon" href="{{ link.url }}" target="_blank" rel="noopener noreferrer"
@@ -94,9 +96,9 @@
   </div>
   {# — Mobilní varianta — <details> pro fallback bez JS — #}
   <details class="share-mobile">
-    <summary class="share-toggle" aria-label="{{ label }}">
+    <summary class="share-toggle" aria-label="Sdílet">
       <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-share-toggle"/></svg>
-      <span>{{ label }}</span>
+      <span>Sdílet</span>
     </summary>
     <div class="share-menu" role="menu">
       {%- for link in links %}
