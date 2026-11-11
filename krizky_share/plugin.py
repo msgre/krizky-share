@@ -1,7 +1,5 @@
 """krizky-share plugin — hook implementations."""
 
-from __future__ import annotations
-
 import logging
 import shutil
 from pathlib import Path
@@ -78,7 +76,8 @@ class SharePlugin:
                 env.loader.loaders = [
                     loaders[0],
                     FileSystemLoader(str(_PLUGIN_TEMPLATES)),
-                ] + loaders[1:]
+                    *loaders[1:],
+                ]
         env.globals["share_links"] = _share_links(config)
 
     # ------------------------------------------------------------------

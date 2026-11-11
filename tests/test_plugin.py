@@ -1,7 +1,5 @@
 """Tests for krizky_share.plugin — hookimpl wiring."""
 
-from __future__ import annotations
-
 from krizky_share.plugin import SharePlugin, _share_links
 
 # ---------------------------------------------------------------------------
@@ -12,14 +10,14 @@ from krizky_share.plugin import SharePlugin, _share_links
 def test_share_links_returns_all_networks_when_image_present():
     fn = _share_links({})
     links = fn("https://x.cz/a", "Titulek", image="https://x.cz/i.jpg")
-    keys = [l["network"] for l in links]
+    keys = [link["network"] for link in links]
     assert keys == ["facebook", "whatsapp", "pinterest", "twitter"]
 
 
 def test_share_links_skips_pinterest_without_image():
     fn = _share_links({})
     links = fn("https://x.cz/a", "Titulek")
-    keys = [l["network"] for l in links]
+    keys = [link["network"] for link in links]
     assert "pinterest" not in keys
     assert set(keys) == {"facebook", "whatsapp", "twitter"}
 
@@ -34,7 +32,7 @@ def test_share_links_dict_shape():
 def test_share_links_respects_configured_networks():
     fn = _share_links({"site": {"share": {"networks": ["twitter"]}}})
     links = fn("https://x.cz/a", "T")
-    assert [l["network"] for l in links] == ["twitter"]
+    assert [link["network"] for link in links] == ["twitter"]
 
 
 # ---------------------------------------------------------------------------

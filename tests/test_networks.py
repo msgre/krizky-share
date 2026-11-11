@@ -1,7 +1,5 @@
 """Tests for krizky_share.networks — URL builders and network resolution."""
 
-from __future__ import annotations
-
 from urllib.parse import parse_qs, urlparse
 
 import pytest

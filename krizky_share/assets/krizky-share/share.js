@@ -103,7 +103,7 @@
       ta.select();
       try {
         document.execCommand('copy');
-      } catch (_) {
+      } catch {
         /* ignore */
       }
       document.body.removeChild(ta);

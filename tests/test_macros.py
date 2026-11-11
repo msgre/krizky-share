@@ -1,7 +1,5 @@
 """Sanity render of _share.html macros — verify HTML shape."""
 
-from __future__ import annotations
-
 import json
 import re
 
