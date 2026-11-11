@@ -1,14 +1,12 @@
 """krizky-share plugin — hook implementations."""
 
-from __future__ import annotations
-
 import logging
 import shutil
 from pathlib import Path
 
 from jinja2 import ChoiceLoader, FileSystemLoader
-
 from krizky.hooks import hookimpl
+
 from krizky_share.networks import NETWORKS, build_share_link, resolve_networks
 
 _log = logging.getLogger(__name__)
@@ -34,12 +32,14 @@ def _share_links(config: dict):
             if share_url is None:
                 continue
             cfg = NETWORKS[key]
-            out.append({
-                "network": key,
-                "label": cfg["label"],
-                "icon": cfg["icon"],
-                "url": share_url,
-            })
+            out.append(
+                {
+                    "network": key,
+                    "label": cfg["label"],
+                    "icon": cfg["icon"],
+                    "url": share_url,
+                }
+            )
         return out
 
     return _links
@@ -73,9 +73,11 @@ class SharePlugin:
             )
             if not already:
                 # After project templates, before built-in krizky templates.
-                env.loader.loaders = (
-                    [loaders[0], FileSystemLoader(str(_PLUGIN_TEMPLATES))] + loaders[1:]
-                )
+                env.loader.loaders = [
+                    loaders[0],
+                    FileSystemLoader(str(_PLUGIN_TEMPLATES)),
+                    *loaders[1:],
+                ]
         env.globals["share_links"] = _share_links(config)
 
     # ------------------------------------------------------------------

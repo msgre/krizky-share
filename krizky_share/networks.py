@@ -4,8 +4,6 @@ Each network is a small dict; :func:`build_share_link` renders the final URL
 with the caller's ``url`` / ``title`` / ``image`` parameters.
 """
 
-from __future__ import annotations
-
 from urllib.parse import quote
 
 # Supported networks in stable order. Config `networks:` picks and reorders.
@@ -27,8 +25,7 @@ NETWORKS: dict[str, dict] = {
         "label": "Pinterest",
         "icon": "i-share-pinterest",
         "url_template": (
-            "https://pinterest.com/pin/create/button/?url={url}"
-            "&media={image}&description={title}"
+            "https://pinterest.com/pin/create/button/?url={url}&media={image}&description={title}"
         ),
         "requires_image": True,
     },
