@@ -8,10 +8,10 @@ import pytest
 
 from krizky_share.networks import NETWORKS, build_share_link, resolve_networks
 
-
 # ---------------------------------------------------------------------------
 # build_share_link
 # ---------------------------------------------------------------------------
+
 
 def _q(url: str, param: str) -> str:
     return parse_qs(urlparse(url).query)[param][0]
@@ -44,7 +44,9 @@ def test_pinterest_requires_image_returns_none_without():
 
 def test_pinterest_with_image_builds_url():
     url = build_share_link(
-        "pinterest", "https://x.cz/a", "Titulek",
+        "pinterest",
+        "https://x.cz/a",
+        "Titulek",
         image="https://cdn.example.com/007.jpg",
     )
     assert url is not None
@@ -69,6 +71,7 @@ def test_special_chars_are_url_encoded():
 # ---------------------------------------------------------------------------
 # resolve_networks
 # ---------------------------------------------------------------------------
+
 
 def test_resolve_networks_default_returns_all():
     assert resolve_networks({}) == list(NETWORKS)

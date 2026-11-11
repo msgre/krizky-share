@@ -27,8 +27,7 @@ NETWORKS: dict[str, dict] = {
         "label": "Pinterest",
         "icon": "i-share-pinterest",
         "url_template": (
-            "https://pinterest.com/pin/create/button/?url={url}"
-            "&media={image}&description={title}"
+            "https://pinterest.com/pin/create/button/?url={url}&media={image}&description={title}"
         ),
         "requires_image": True,
     },

@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import re
-
 from krizky_share.plugin import SharePlugin, _share_links
-
 
 # ---------------------------------------------------------------------------
 # _share_links global
 # ---------------------------------------------------------------------------
+
 
 def test_share_links_returns_all_networks_when_image_present():
     fn = _share_links({})
@@ -42,6 +40,7 @@ def test_share_links_respects_configured_networks():
 # ---------------------------------------------------------------------------
 # inject_head
 # ---------------------------------------------------------------------------
+
 
 def test_inject_head_emits_site_defaults():
     plugin = SharePlugin()
@@ -78,11 +77,13 @@ def test_inject_head_default_image_absolutized_when_base_url_present():
     plugin = SharePlugin()
     html = plugin.inject_head(
         page_cfg={},
-        config={"site": {
-            "title": "T",
-            "base_url": "https://valasskenebe.cz",
-            "share": {"default_image": "/assets/og.jpg"},
-        }},
+        config={
+            "site": {
+                "title": "T",
+                "base_url": "https://valasskenebe.cz",
+                "share": {"default_image": "/assets/og.jpg"},
+            }
+        },
     )
     assert '<meta property="og:image" content="https://valasskenebe.cz/assets/og.jpg">' in html
 
@@ -91,11 +92,13 @@ def test_inject_head_default_image_passes_absolute_url_through():
     plugin = SharePlugin()
     html = plugin.inject_head(
         page_cfg={},
-        config={"site": {
-            "title": "T",
-            "base_url": "https://valasskenebe.cz",
-            "share": {"default_image": "https://cdn.example.com/og.jpg"},
-        }},
+        config={
+            "site": {
+                "title": "T",
+                "base_url": "https://valasskenebe.cz",
+                "share": {"default_image": "https://cdn.example.com/og.jpg"},
+            }
+        },
     )
     assert '<meta property="og:image" content="https://cdn.example.com/og.jpg">' in html
 
@@ -113,6 +116,7 @@ def test_inject_head_escapes_html_in_values():
 # inject_body_end
 # ---------------------------------------------------------------------------
 
+
 def test_inject_body_end_contains_sprite_and_script():
     plugin = SharePlugin()
     html = plugin.inject_body_end(page_cfg={}, config={})
@@ -126,11 +130,15 @@ def test_inject_body_end_contains_sprite_and_script():
 # after_page_written — assets copy
 # ---------------------------------------------------------------------------
 
+
 def test_after_page_written_copies_assets(tmp_path):
     plugin = SharePlugin()
     plugin.after_page_written(
-        page_cfg={}, html_path="/foo.html", output_dir=tmp_path,
-        records=[], config={},
+        page_cfg={},
+        html_path="/foo.html",
+        output_dir=tmp_path,
+        records=[],
+        config={},
     )
     assert (tmp_path / "krizky-share" / "share.css").exists()
     assert (tmp_path / "krizky-share" / "share.js").exists()
@@ -139,8 +147,12 @@ def test_after_page_written_copies_assets(tmp_path):
 def test_after_page_written_copies_only_once(tmp_path):
     """Second call for the same output_dir doesn't rewrite assets."""
     plugin = SharePlugin()
-    plugin.after_page_written(page_cfg={}, html_path="/a.html", output_dir=tmp_path, records=[], config={})
+    plugin.after_page_written(
+        page_cfg={}, html_path="/a.html", output_dir=tmp_path, records=[], config={}
+    )
     mtime_before = (tmp_path / "krizky-share" / "share.css").stat().st_mtime_ns
-    plugin.after_page_written(page_cfg={}, html_path="/b.html", output_dir=tmp_path, records=[], config={})
+    plugin.after_page_written(
+        page_cfg={}, html_path="/b.html", output_dir=tmp_path, records=[], config={}
+    )
     mtime_after = (tmp_path / "krizky-share" / "share.css").stat().st_mtime_ns
     assert mtime_before == mtime_after

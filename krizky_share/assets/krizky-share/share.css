@@ -6,67 +6,125 @@
  * Breakpoint 640px: mobil = jedno tlačítko + dropdown, desktop = řada ikon.
  */
 
-.share { display: inline-flex; }
+.share {
+  display: inline-flex;
+}
 
 /* — desktop varianta — řada 4 kruhových ikon — */
-.share-desktop { display: none; align-items: center; gap: 16px; }
-.share-label { color: var(--muted); }
-.share-icons { display: flex; gap: 8px; }
-.share-icon {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 36px; height: 36px;
-  border: 1px solid var(--hairline); border-radius: 100px;
+.share-desktop {
+  display: none;
+  align-items: center;
+  gap: 16px;
+}
+.share-label {
   color: var(--muted);
-  transition: color .15s, border-color .15s;
 }
-.share-icon:hover, .share-icon:focus-visible {
-  color: var(--ink); border-color: var(--muted);
+.share-icons {
+  display: flex;
+  gap: 8px;
 }
-.share-icon:focus-visible { outline: 2px solid var(--muted); outline-offset: 2px; }
+.share-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--hairline);
+  border-radius: 100px;
+  color: var(--muted);
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+.share-icon:hover,
+.share-icon:focus-visible {
+  color: var(--ink);
+  border-color: var(--muted);
+}
+.share-icon:focus-visible {
+  outline: 2px solid var(--muted);
+  outline-offset: 2px;
+}
 
 /* — mobilní varianta — <details> + <summary> — */
-.share-mobile { position: relative; }
-.share-mobile summary { list-style: none; cursor: pointer; }
-.share-mobile summary::-webkit-details-marker { display: none; }
+.share-mobile {
+  position: relative;
+}
+.share-mobile summary {
+  list-style: none;
+  cursor: pointer;
+}
+.share-mobile summary::-webkit-details-marker {
+  display: none;
+}
 
 .share-toggle {
-  display: inline-flex; align-items: center; gap: 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   padding: 8px 14px;
-  border: 1px solid var(--hairline); border-radius: 100px;
-  color: var(--ink); font-size: .85rem;
+  border: 1px solid var(--hairline);
+  border-radius: 100px;
+  color: var(--ink);
+  font-size: 0.85rem;
   background: transparent;
   user-select: none;
 }
-.share-toggle:hover { border-color: var(--muted); }
+.share-toggle:hover {
+  border-color: var(--muted);
+}
 
 .share-menu {
-  position: absolute; top: calc(100% + 6px); left: 0;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
   width: 220px;
   background: var(--surface);
-  border: 1px solid var(--hairline); border-radius: var(--radius);
-  box-shadow: 0 12px 28px rgba(34, 30, 28, .12);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 28px rgba(34, 30, 28, 0.12);
   overflow: hidden;
   z-index: 500;
 }
 .share-menu-item {
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: 100%;
   padding: 10px 14px;
-  background: transparent; border: 0; border-top: 1px solid var(--hairline);
-  color: var(--ink); font-size: .86rem; text-align: left;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  color: var(--ink);
+  font-size: 0.86rem;
+  text-align: left;
   cursor: pointer;
   text-decoration: none;
 }
-.share-menu-item:first-child { border-top: 0; }
-.share-menu-item svg { color: var(--muted); flex: 0 0 auto; }
-.share-menu-item:hover, .share-menu-item:focus-visible {
+.share-menu-item:first-child {
+  border-top: 0;
+}
+.share-menu-item svg {
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+.share-menu-item:hover,
+.share-menu-item:focus-visible {
   background: var(--surface-2, var(--hairline));
 }
-.share-menu-item:focus-visible { outline: none; }
-.share-menu-item[data-share-copy].is-copied span { color: var(--brand, var(--ink)); }
+.share-menu-item:focus-visible {
+  outline: none;
+}
+.share-menu-item[data-share-copy].is-copied span {
+  color: var(--brand, var(--ink));
+}
 
 /* — responsive switch — */
 @media (min-width: 640px) {
-  .share-desktop { display: flex; }
-  .share-mobile { display: none; }
+  .share-desktop {
+    display: flex;
+  }
+  .share-mobile {
+    display: none;
+  }
 }

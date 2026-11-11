@@ -11,7 +11,7 @@ from jinja2 import ChoiceLoader, Environment, FileSystemLoader
 from krizky_share.plugin import _PLUGIN_TEMPLATES, _share_links
 
 
-@pytest.fixture()
+@pytest.fixture
 def env():
     e = Environment(
         loader=ChoiceLoader([FileSystemLoader(str(_PLUGIN_TEMPLATES))]),
@@ -24,6 +24,7 @@ def env():
 # ---------------------------------------------------------------------------
 # share_meta
 # ---------------------------------------------------------------------------
+
 
 def test_share_meta_default_type(env):
     tmpl = env.from_string(
@@ -49,9 +50,7 @@ def test_share_meta_article_type(env):
 
 
 def test_share_meta_omits_optional_fields(env):
-    tmpl = env.from_string(
-        '{% from "_share.html" import share_meta %}{{ share_meta("u", "t") }}'
-    )
+    tmpl = env.from_string('{% from "_share.html" import share_meta %}{{ share_meta("u", "t") }}')
     out = tmpl.render()
     assert "og:description" not in out
     assert "og:image" not in out
@@ -60,6 +59,7 @@ def test_share_meta_omits_optional_fields(env):
 # ---------------------------------------------------------------------------
 # share_schema_place
 # ---------------------------------------------------------------------------
+
 
 def _extract_jsonld(html: str) -> dict:
     m = re.search(r'<script type="application/ld\+json">(.+?)</script>', html, re.DOTALL)
@@ -110,6 +110,7 @@ def test_schema_place_omits_geo_when_partial(env):
 # share_buttons
 # ---------------------------------------------------------------------------
 
+
 def test_share_buttons_renders_desktop_and_mobile_variants(env):
     tmpl = env.from_string(
         '{% from "_share.html" import share_buttons %}'
@@ -125,11 +126,10 @@ def test_share_buttons_renders_desktop_and_mobile_variants(env):
 
 def test_share_buttons_without_image_hides_pinterest(env):
     tmpl = env.from_string(
-        '{% from "_share.html" import share_buttons %}'
-        '{{ share_buttons("https://x.cz/a", "T") }}'
+        '{% from "_share.html" import share_buttons %}{{ share_buttons("https://x.cz/a", "T") }}'
     )
     out = tmpl.render()
-    assert 'i-share-pinterest' not in out
+    assert "i-share-pinterest" not in out
     assert out.count('class="share-icon"') == 3  # facebook, whatsapp, twitter
 
 
@@ -149,26 +149,24 @@ def test_share_buttons_custom_label(env):
         '{{ share_buttons("u", "t", label="Poslat dál") }}'
     )
     out = tmpl.render()
-    assert 'Poslat dál' in out
+    assert "Poslat dál" in out
 
 
 def test_share_buttons_label_none_hides_desktop_label_only(env):
     """label=none = jen ikony na desktopu; mobil má stále "Sdílet"."""
     tmpl = env.from_string(
-        '{% from "_share.html" import share_buttons %}'
-        '{{ share_buttons("u", "t", label=none) }}'
+        '{% from "_share.html" import share_buttons %}{{ share_buttons("u", "t", label=none) }}'
     )
     out = tmpl.render()
     # Desktop label element chybí.
     assert 'class="share-label' not in out
     # Mobilní "Sdílet" text a aria-label zůstávají.
-    assert '<span>Sdílet</span>' in out
+    assert "<span>Sdílet</span>" in out
     assert 'aria-label="Sdílet"' in out
 
 
 def test_share_buttons_copy_button_has_data_attr(env):
     tmpl = env.from_string(
-        '{% from "_share.html" import share_buttons %}'
-        '{{ share_buttons("u", "t") }}'
+        '{% from "_share.html" import share_buttons %}{{ share_buttons("u", "t") }}'
     )
-    assert 'data-share-copy' in tmpl.render()
+    assert "data-share-copy" in tmpl.render()
