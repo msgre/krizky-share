@@ -2,7 +2,7 @@
 id: "01"
 slug: core-helpers
 title: Plugin používá helpery a hook copy_plugin_assets z core 0.2
-status: pending
+status: done
 depends_on: []
 files:
   - pyproject.toml
@@ -10,8 +10,8 @@ files:
   - krizky_share/plugin.py
   - tests/test_plugin.py
   - README.md
-attempts: 0
-pr: ""
+attempts: 1
+pr: "2"
 ---
 
 ## Cíl
