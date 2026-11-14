@@ -1,11 +1,10 @@
 """krizky-share plugin — hook implementations."""
 
 import logging
-import shutil
 from pathlib import Path
 
-from jinja2 import ChoiceLoader, FileSystemLoader
 from krizky.hooks import hookimpl
+from krizky.plugin_helpers import register_plugin_templates, replace_tree
 
 from krizky_share.networks import NETWORKS, build_share_link, resolve_networks
 
@@ -52,11 +51,8 @@ class SharePlugin:
     - prepare_jinja2_environment: registers plugin templates and share_links() global
     - inject_head: emits site-wide OG defaults (og:site_name, og:locale, twitter:site, default image)
     - inject_body_end: injects the SVG icon sprite
-    - after_page_written: copies CSS/JS assets into the output directory
+    - copy_plugin_assets: recreates output/krizky-share/ with CSS/JS/sprite assets
     """
-
-    def __init__(self) -> None:
-        self._assets_copied: set[str] = set()
 
     # ------------------------------------------------------------------
     # prepare_jinja2_environment
@@ -64,20 +60,8 @@ class SharePlugin:
 
     @hookimpl
     def prepare_jinja2_environment(self, env, config, config_dir):
-        """Insert plugin templates into the loader chain and register share_links global."""
-        if isinstance(env.loader, ChoiceLoader):
-            loaders = env.loader.loaders
-            already = any(
-                isinstance(ldr, FileSystemLoader) and str(_PLUGIN_TEMPLATES) in ldr.searchpath
-                for ldr in loaders
-            )
-            if not already:
-                # After project templates, before built-in krizky templates.
-                env.loader.loaders = [
-                    loaders[0],
-                    FileSystemLoader(str(_PLUGIN_TEMPLATES)),
-                    *loaders[1:],
-                ]
+        """Register plugin templates and the share_links global."""
+        register_plugin_templates(env, _PLUGIN_TEMPLATES)
         env.globals["share_links"] = _share_links(config)
 
     # ------------------------------------------------------------------
@@ -142,25 +126,13 @@ class SharePlugin:
         return "\n".join(pieces) + "\n"
 
     # ------------------------------------------------------------------
-    # after_page_written — copy CSS/JS assets
+    # copy_plugin_assets — CSS/JS/sprite into output
     # ------------------------------------------------------------------
 
     @hookimpl
-    def after_page_written(self, page_cfg, html_path, output_dir, records, config):
-        """Copy share.css + share.js into output/krizky-share/ (once per build)."""
-        self._copy_assets(output_dir)
-
-    def _copy_assets(self, output_dir: Path) -> None:
-        key = str(output_dir)
-        if key in self._assets_copied:
-            return
-        dst = output_dir / "krizky-share"
-        dst.mkdir(parents=True, exist_ok=True)
-        for name in ("share.css", "share.js"):
-            src = _PLUGIN_ASSETS / "krizky-share" / name
-            if src.exists():
-                shutil.copy2(src, dst / name)
-        self._assets_copied.add(key)
+    def copy_plugin_assets(self, output_dir, config, config_dir):
+        """Recreate output/krizky-share/ from the plugin assets (once per build)."""
+        replace_tree(_PLUGIN_ASSETS / "krizky-share", Path(output_dir) / "krizky-share")
 
 
 def _esc(value: str) -> str:

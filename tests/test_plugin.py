@@ -1,6 +1,8 @@
 """Tests for krizky_share.plugin — hookimpl wiring."""
 
-from krizky_share.plugin import SharePlugin, _share_links
+from jinja2 import ChoiceLoader, Environment, FileSystemLoader
+
+from krizky_share.plugin import _PLUGIN_TEMPLATES, SharePlugin, _share_links
 
 # ---------------------------------------------------------------------------
 # _share_links global
@@ -125,32 +127,51 @@ def test_inject_body_end_contains_sprite_and_script():
 
 
 # ---------------------------------------------------------------------------
-# after_page_written — assets copy
+# copy_plugin_assets
 # ---------------------------------------------------------------------------
 
 
-def test_after_page_written_copies_assets(tmp_path):
-    plugin = SharePlugin()
-    plugin.after_page_written(
-        page_cfg={},
-        html_path="/foo.html",
-        output_dir=tmp_path,
-        records=[],
-        config={},
-    )
+def test_copy_plugin_assets_copies_assets(tmp_path):
+    SharePlugin().copy_plugin_assets(output_dir=tmp_path, config={}, config_dir=tmp_path)
     assert (tmp_path / "krizky-share" / "share.css").exists()
     assert (tmp_path / "krizky-share" / "share.js").exists()
 
 
-def test_after_page_written_copies_only_once(tmp_path):
-    """Second call for the same output_dir doesn't rewrite assets."""
+def test_copy_plugin_assets_accepts_str_output_dir(tmp_path):
+    SharePlugin().copy_plugin_assets(output_dir=str(tmp_path), config={}, config_dir=tmp_path)
+    assert (tmp_path / "krizky-share" / "share.js").exists()
+
+
+def test_copy_plugin_assets_removes_stale_files(tmp_path):
+    stale = tmp_path / "krizky-share" / "stale.txt"
+    stale.parent.mkdir()
+    stale.write_text("x")
+    SharePlugin().copy_plugin_assets(output_dir=tmp_path, config={}, config_dir=tmp_path)
+    assert not stale.exists()
+
+
+def test_plugin_has_no_after_page_written():
+    assert not hasattr(SharePlugin, "after_page_written")
+
+
+# ---------------------------------------------------------------------------
+# prepare_jinja2_environment
+# ---------------------------------------------------------------------------
+
+
+def test_prepare_jinja2_environment_registers_templates_and_global(tmp_path):
+    proj = tmp_path / "proj"
+    builtin = tmp_path / "builtin"
+    proj.mkdir()
+    builtin.mkdir()
+    env = Environment(
+        loader=ChoiceLoader([FileSystemLoader(str(proj)), FileSystemLoader(str(builtin))])
+    )
     plugin = SharePlugin()
-    plugin.after_page_written(
-        page_cfg={}, html_path="/a.html", output_dir=tmp_path, records=[], config={}
-    )
-    mtime_before = (tmp_path / "krizky-share" / "share.css").stat().st_mtime_ns
-    plugin.after_page_written(
-        page_cfg={}, html_path="/b.html", output_dir=tmp_path, records=[], config={}
-    )
-    mtime_after = (tmp_path / "krizky-share" / "share.css").stat().st_mtime_ns
-    assert mtime_before == mtime_after
+    plugin.prepare_jinja2_environment(env=env, config={}, config_dir=tmp_path)
+    loaders = env.loader.loaders
+    assert len(loaders) == 3
+    assert str(_PLUGIN_TEMPLATES) in loaders[1].searchpath
+    assert "share_links" in env.globals
+    plugin.prepare_jinja2_environment(env=env, config={}, config_dir=tmp_path)
+    assert len(env.loader.loaders) == 3
