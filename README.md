@@ -114,7 +114,10 @@ Plugin generuje do output:
 ```
 /krizky-share/share.css
 /krizky-share/share.js
+/krizky-share/icons.svg
 ```
+
+Adresář `output/krizky-share/` se při každém buildu vytvoří znovu, takže v něm nezůstanou staré soubory.
 
 Vkládají se automaticky do `<head>` (CSS) a před `</body>` (JS + inline SVG sprite).
 
